@@ -10,6 +10,7 @@
 # To get you started we've included code to prevent your Battlesnake from moving backwards.
 # For more info see docs.battlesnake.com
 
+
 import random
 import typing
 import sys
@@ -38,6 +39,53 @@ def start(game_state: typing.Dict):
 # end is called when your Battlesnake finishes a game
 def end(game_state: typing.Dict):
     print("GAME OVER\n")
+    
+def getHeuristic(gameState):
+    # Make sure you prevent your Battlesnake from...
+    #   - moving backwards
+    #   - moving out of bounds
+    #   - colliding with itself
+    #   - colliding with other Battlesnakes
+    
+    opponents = game_state['board']['snakes']
+    my_body = game_state['you']['body']
+    board_width = game_state['board']['width']
+    board_height = game_state['board']['height']
+    food = gameState['board']['food']
+    
+       
+    return(value)    
+
+def isTerminal(gameState):
+    # returns true if gameState represents a state that would be the end of the game
+    # this can include:
+    #   1. One of the players has won the game
+    #   2. The game has ended in a draw
+    #   3. 
+    
+    return True
+
+def minimax(gameState, depth, maximizingPlayer):
+    if depth == 0 or isTerminal(gameState):
+        return getHeuristic(gameState)
+    if maximizingPlayer: 
+        value  = float('-inf')
+        bestMove = None
+        for each in ["up", "down", "left", "right"]:
+            newState = gameState.apply(move_option)
+            minimaxResults = minimax(newState, depth-1, False)
+            if minimaxResults[0] > value:  # compare value of returned minimax function with currently stored value
+                value, bestMove = minimaxResults
+        return (value, best_move)
+    else: # minimizing player
+        value = float('inf')
+        bestMove = None
+        for each in ["up", "down", "left", "right"]:
+            newState = gameState.apply(move_option)
+            minimaxResults = minimax(newState, depth-1, False)
+            if minimaxResults[0] < value:  # compare value of returned minimax function with currently stored value
+                value, bestMove = minimaxResults
+        return (value, best_move)
 
 
 # move is called on every turn and returns your next move
@@ -47,31 +95,6 @@ def move(game_state: typing.Dict) -> typing.Dict:
 
     is_move_safe = {"up": True, "down": True, "left": True, "right": True}
 
-    # We've included code to prevent your Battlesnake from moving backwards
-    my_head = game_state["you"]["body"][0]  # Coordinates of your head
-    my_neck = game_state["you"]["body"][1]  # Coordinates of your "neck"
-
-    if my_neck["x"] < my_head["x"]:  # Neck is left of head, don't move left
-        is_move_safe["left"] = False
-
-    elif my_neck["x"] > my_head["x"]:  # Neck is right of head, don't move right
-        is_move_safe["right"] = False
-
-    elif my_neck["y"] < my_head["y"]:  # Neck is below head, don't move down
-        is_move_safe["down"] = False
-
-    elif my_neck["y"] > my_head["y"]:  # Neck is above head, don't move up
-        is_move_safe["up"] = False
-
-    # TODO: Step 1 - Prevent your Battlesnake from moving out of bounds
-    # board_width = game_state['board']['width']
-    # board_height = game_state['board']['height']
-
-    # TODO: Step 2 - Prevent your Battlesnake from colliding with itself
-    # my_body = game_state['you']['body']
-
-    # TODO: Step 3 - Prevent your Battlesnake from colliding with other Battlesnakes
-    # opponents = game_state['board']['snakes']
 
     # Are there any safe moves left?
     safe_moves = []
@@ -83,11 +106,9 @@ def move(game_state: typing.Dict) -> typing.Dict:
         print(f"MOVE {game_state['turn']}: No safe moves detected! Moving down")
         return {"move": "down"}
 
-    # Choose a random move from the safe ones
-    next_move = random.choice(safe_moves)
 
-    # TODO: Step 4 - Move towards food instead of random, to regain health and survive longer
-    # food = game_state['board']['food']
+    confidence = 0  # stores the value of the heuristic function of the chosen move that is returned from minimax
+    confindence, next_move = minimax(game_state, 1, True)
 
     print(f"MOVE {game_state['turn']}: {next_move}")
     return {"move": next_move}
